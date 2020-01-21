@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: futura-homepage
+  name: futura-homepage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: futura-homepage
+  template:
+    metadata:
+      labels:
+        app: futura-homepage
+    spec:
+      containers:
+      - name: futura-homepage
+        image: izzatzr/futura:v1.0
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+          protocol: TCP
+        resources:
+          limits:
+            memory: "50Mi"
+            cpu: "50m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: futura-homepage
+  name: futura-homepage
+spec:
+  ports:
+  - name: http
+    protocol: TCP
+    port: 80
+    targetPort: 80
+  selector:
+    app: futura-homepage
+  type: ClusterIP
+
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: futura-homepage
+  annotations:
+    ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /
+        backend:
+          serviceName: futura-homepage
+          servicePort: 80
